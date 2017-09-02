@@ -3,10 +3,38 @@ function ClozeCard(text, cloze) {
 	if (this instanceof ClozeCard) {
 
 		this.cloze = cloze;
-		//this.partial = getPartial(text, cloze) || "";
-		this.partial = text.replace(cloze, "---"); 
+		this.partial = getPartial(text, cloze) || "";
+		//this.partial = text.replace(cloze, "---"); 
 		this.fullText = text;
 
+		function getPartial(text, cloze) {
+
+			var partialString = text.replace(cloze, "---");
+
+			//console.log(partialString);
+
+			try {
+
+				if (partialString === text) {
+
+					throw e;
+
+				} else {
+
+					return partialString.trim();
+
+				}
+
+			} catch (e) {
+
+				console.log('Expression not found in full text!!!')
+				console.log("Construction of new ClozeCard terminated! Program exit now.");
+			
+			}
+
+		}
+
+		/*
 		function getPartial(text, cloze) {
 
 			var textArray = text.split(" ");
@@ -63,12 +91,14 @@ function ClozeCard(text, cloze) {
 			}
 
 		}
+		*/
 
 	} else {
 
 		return new ClozeCard(text, cloze);
 
 	}
+
 
 }
 
