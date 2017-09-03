@@ -75,6 +75,20 @@
 
 	$(document).ready(function() {
 
+		$.ajax({
+
+			url: "http://127.0.0.1:8080/Read?",
+			method: 'GET',
+
+		}).done(function(result){
+
+			//read from db
+			console.log("result from server is");
+			console.log(result);
+			populateCards(result);
+
+		});
+
 		//alert("hello world");
 		$("#submit").on("click", function(e){
 
@@ -91,7 +105,7 @@
 			//var bCard = new BasicCard(fText,bText);
 
 			//console.log(bCard.front);
-			var url = "http://127.0.0.1:8080/BasicCard?" + "ft=" + fText + "&" + "bt=" + bText;
+			var url = "http://127.0.0.1:8080/Card?" + "ft=" + fText + "&" + "bt=" + bText;
 
 			$.ajax({
 		    
@@ -106,63 +120,7 @@
 
 		    	createBasicCard(result, row);
 		    	createClozeCard(result, row);
-		          //console.log(result.response.docs.splice(number));
-		          //var actualArticles = result.response.docs.splice(number);
-		          //console.log(actualArticles);
-		          //populate(removeArticle(result.response.docs, number));
-		          /*
-		          console.log(result);
 
-		          var row = $("<div>");
-		          row.attr("class", "row");
-		          var col = $("<div>");
-		          col.attr("class", "col m12");
-		          var color = $("<div>");
-		          color.attr("class", "blue-grey darken-1");
-		          var content = $("<div>");
-		          content.attr("class", "card-content white-text");
-		          var title = $("<span>");
-		          title.attr("class", "card-title");
-		          title.html("Flash Card");
-		          var pfront = $("<p>");
-		          pfront.html(result[0].front);
-		          var pback = $("<p>");
-		          pback.html(result[0].front);
-
-		          content.append(title);
-		          content.append(pfront);
-		          color.append(content);
-		          col.append(color);
-		          row.append(col);
-
-		          console.log(row);
-
-		          $("#cards").append(row);
-
-
-
-/*
-		            			<div class="row">
-		        <div class="col m12">
-		          <div class="card blue-grey darken-1">
-		            <div class="card-content white-text">
-		              <span class="card-title">Card Title</span>
-		              <p>I am a very simple card. I am good at containing small bits of information.
-		              I am convenient because I require little markup to use effectively.</p>
-		            </div>
-		            <div class="card-action">
-		              <a href="#">This is a link</a>
-		              <a href="#">This is a link</a>
-		            </div>
-		          </div>
-		        </div>
-		    </div>
-
-		    <div class="card-action">
-              <a href="#">This is a link</a>
-              <a href="#">This is a link</a>
-            </div>
-*/
 
 
 		    }).fail(function(err) {
@@ -175,6 +133,23 @@
 
 
 	});
+
+	function populateCards(array) {
+
+		var row = $("<div>");
+		row.attr("class", "row");
+		$("#cards").append(row);
+
+		for (var i = 0; i <array.length; i++) {
+
+			console.log(array[i]);
+		    
+		    createBasicCard(array[i], row);
+		    createClozeCard(array[i], row);
+		
+		}
+
+	}
 
 
 	function createBasicCard(array, row) {
@@ -195,21 +170,43 @@
 		title.attr("class", "card-title");
 		title.html("Basic Flash Card");
 
+		var pContent = $("<p>");
+		//pContent.attr("class", "content");
+		//pContent.attr("data_front", array[0].front.replace(/%20/g, " "));
+		//pContent.attr("data_back", array[0].front.replace(/%20/g, " "));
+		pContent.html(array[0].front.replace(/%20/g, " "));
+
+		/*
 		var pFront = $("<p>");
 		pFront.html(array[0].front.replace(/%20/g, " "));
 
 		var pBack = $("<p>");
 		pBack.html(array[0].back.replace(/%20/g, " "));
+		*/
 
 		var action = $("<div>");
 		action.attr("class", "card-action");
 
-		action.html("<a href='#'>Front</a>" +
-		            "<a href='#'>Back</a>");
+		var linkF = $("<a>");
+		linkF.attr("class", "f");
+		linkF.attr("data_front", array[0].front.replace(/%20/g, " "))
+		linkF.html("Front");
+
+		var linkB = $("<a>");
+		linkB.attr("class", "b");
+		linkB.attr("data_back", array[0].back.replace(/%20/g, " "))
+		linkB.html("Back");
+
+		//action.html("<a class='f' href='#'>Front</a>" +
+		//            "<a class='b' href='#'>Back</a>");
+
+		action.append(linkF);
+		action.append(linkB);
 
 		content.append(title);
-		content.append(pFront);
-		content.append(pBack);
+		content.append(pContent);
+		//content.append(pFront);
+		//content.append(pBack);
 		color.append(content);
 		color.append(action);
 		col.append(color);
@@ -239,26 +236,54 @@
 		title.attr("class", "card-title");
 		title.html("Cloze Flash Card");
 
-		var pFullText = $("<p>");
-		pFullText.html(array[1].fullText.replace(/%20/g, " "));
+		//var pFullText = $("<p>");
+		//pFullText.html(array[1].fullText.replace(/%20/g, " "));
 
-		var pCloze = $("<p>");
-		pCloze.html(array[1].cloze.replace(/%20/g, " "));
+		//var pCloze = $("<p>");
+		//pCloze.html(array[1].cloze.replace(/%20/g, " "));
 
-		var pPartial = $("<p>");
-		pPartial.html(array[1].partial.replace(/%20/g, " "));
+		//var pPartial = $("<p>");
+		//pPartial.html(array[1].partial.replace(/%20/g, " "));
+
+		var pContent = $("<p>");
+		pContent.html(array[1].partial.replace(/%20/g, " "));
 
 		var action = $("<div>");
 		action.attr("class", "card-action");
 
-		action.html("<a href='#'>Full</a>" +
-		            "<a href='#'>Test</a>" +
-		            "<a href='#'>Answer</a>");
+		var linkFull = $("<a>");
+		linkFull.attr("class", "full");
+		linkFull.attr("data_full", array[1].fullText.replace(/%20/g, " "))
+		linkFull.html("Full");
+
+		var linkTest = $("<a>");
+		linkTest.attr("class", "test");
+		linkTest.attr("data_test", array[1].partial.replace(/%20/g, " "))
+		linkTest.html("Test");
+
+		var linkAns = $("<a>");
+		linkAns.attr("class", "answer");
+		linkAns.attr("data_answer", array[1].cloze.replace(/%20/g, " "))
+		linkAns.html("Answer");
+
+		//action.html("<a class='f' href='#'>Front</a>" +
+		//            "<a class='b' href='#'>Back</a>");
+
+		action.append(linkFull);
+		action.append(linkTest);
+		action.append(linkAns);
+
+
+
+		//action.html("<a href='#'>Full</a>" +
+		 //           "<a href='#'>Test</a>" +
+		   //         "<a href='#'>Answer</a>");
 
 		content.append(title);
-		content.append(pFullText);
-		content.append(pCloze);
-		content.append(pPartial);
+		content.append(pContent);
+		//content.append(pFullText);
+		//content.append(pCloze);
+		//content.append(pPartial);
 		color.append(content);
 		color.append(action);
 		col.append(color);
@@ -270,6 +295,51 @@
 		//$("#cards").append(col);
 
 	}
+
+	$(document).on("click", ".f", function(e){
+
+		//console.log($(this).attr("data_front"));
+		//console.log($(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML);
+		//console.log($(this).parentNode);
+		$(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML = $(this).attr("data_front");
+
+	})
+
+	$(document).on("click", ".b", function(e){
+
+		//console.log($(this).attr("data_back"));
+		//console.log($(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML);
+		//console.log($(this).parentNode);
+		$(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML = $(this).attr("data_back");
+
+	})
+
+	$(document).on("click", ".full", function(e){
+
+		//console.log($(this).attr("data_back"));
+		//console.log($(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML);
+		//console.log($(this).parentNode);
+		$(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML = $(this).attr("data_full");
+
+	})
+
+	$(document).on("click", ".test", function(e){
+
+		//console.log($(this).attr("data_back"));
+		//console.log($(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML);
+		//console.log($(this).parentNode);
+		$(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML = $(this).attr("data_test");
+
+	})
+
+	$(document).on("click", ".answer", function(e){
+
+		//console.log($(this).attr("data_back"));
+		//console.log($(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML);
+		//console.log($(this).parentNode);
+		$(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML = $(this).attr("data_answer");
+
+	})
 
 	</script>
 

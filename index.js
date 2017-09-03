@@ -30,10 +30,12 @@ var brokenCloze = new ClozeCard("This doesn't work", "oops");
 
 var BasicCard = require("./BasicCard.js");
 var ClozeCard = require("./ClozeCard.js");
+var DB = require("./db.js");
+var fs = require("fs");
 
 var url = require("url");
 var fs = require("fs");
-var index = fs.readFileSync("index.html");
+//var index = fs.readFileSync("index.html");
 
 
 function buildHTML(req) {
@@ -60,13 +62,80 @@ http.createServer(function (req, res) {
   //res.end();
 
   //console.log(url.parse(req.url));
-
+  var database = new DB();
   var path = url.parse(req.url).pathname;
 
   //console.log(pathArray[0]);
   //console.log(pathArray[1]);
+  if (path === "/Read") {
 
-  if (path === "/BasicCard") {
+  	console.log("read from db");
+  	
+  	
+  	res.writeHead(200, {"Content-Type": "application/json"});
+
+  	console.log(res.context);
+
+  	//The callback res.end lost context... causing an error to http in index.js 
+  	//database.readDB("db", res.end);
+
+  	//console.log(database.readDB("db"));
+
+  	
+  	fs.readFile("db", "utf8", function(err, data) {
+
+  		var textPairObject = [];
+
+			if (err) {
+
+				console.log(err);
+
+			} else {
+
+				//console.log(data);
+				
+				var dataArray = data.split("\n");
+
+
+				//console.log(dataArray);
+				
+				for (var i = 0; i < dataArray.length-1; i++) {
+
+
+
+
+					var textPair = dataArray[i].split(",");
+
+					var basicCard = new BasicCard(textPair[0], textPair[1]);
+  					var clozeCard = new ClozeCard(textPair[0], textPair[1]);
+
+  					var cardArray = [basicCard, clozeCard];
+
+					//console.log(textPair);
+
+					textPairObject.push(cardArray);
+
+					console.log("logging textPairObject:", textPairObject);
+
+				}	
+
+				res.end(JSON.stringify(textPairObject));
+
+			}
+
+
+		})
+
+
+  	//database.readDB("db");
+
+  	//console.log(database.textPairObject);
+  	//res.write(JSON.stringify(database.readDB("db")));
+  	
+
+  } else {
+
+  if (path === "/Card") {
 
   	console.log("request recieved");
 
@@ -77,6 +146,8 @@ http.createServer(function (req, res) {
 
   	var fullText = textArray[0].substring(3,textArray[0].length);
   	var cloze = textArray[1].substring(3,textArray[1].length);
+
+  	database.writeDB("db", fullText + "," + cloze + "\n");
 
   	var basicCard = new BasicCard(fullText, cloze);
   	var clozeCard = new ClozeCard(fullText, cloze);
@@ -98,6 +169,7 @@ http.createServer(function (req, res) {
         res.write(data);
         res.end();
   	});
+  }
   }
 
 /*
@@ -156,4 +228,4 @@ http.createServer(function (req, res) {
     console.log("readed end without going into if...");
 */
 }).listen(8080, '127.0.0.1');
-console.log('Server running at http://APP_PRIVATE_IP_ADDRESS:8080/');
+console.log('Server running at http://127.0.0.1:8080/');
