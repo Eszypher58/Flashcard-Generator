@@ -1,3 +1,5 @@
+//Constructor for BasicCard
+
 function BasicCard(front, back) {
 
 	if (this instanceof BasicCard) {

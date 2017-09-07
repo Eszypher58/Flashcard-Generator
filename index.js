@@ -28,204 +28,104 @@ console.log(firstPresidentCloze.fullText);
 var brokenCloze = new ClozeCard("This doesn't work", "oops");
 */
 
+
+
+//setup necessary module and variables
 var BasicCard = require("./BasicCard.js");
 var ClozeCard = require("./ClozeCard.js");
 var DB = require("./db.js");
 var fs = require("fs");
-
 var url = require("url");
-var fs = require("fs");
-//var index = fs.readFileSync("index.html");
-
-
-function buildHTML(req) {
-
-	var header = '<title>Nodejs</title>';
-	var body = '<h1>Hello World</h1>';
-
-	return '<!DOCTYPE html>'
-       + '<html><header>' + header + '</header><body>' + body + '</body></html>';
-
-}
-
 var http = require('http');
+
+//crete a server via node http
 http.createServer(function (req, res) {
 
-	//console.log(req);
-	//console.log(res);
-	//var html = buildHTML(req);
+	var database = new DB();
+	var path = url.parse(req.url).pathname;
 
-	//var html = 
+	if (path === "/Read") {
 
-  //res.writeHead(200, {'Content-Type': 'text/html', 'Content-Length': index.length,});
-  //res.write(index);
-  //res.end();
-
-  //console.log(url.parse(req.url));
-  var database = new DB();
-  var path = url.parse(req.url).pathname;
-
-  //console.log(pathArray[0]);
-  //console.log(pathArray[1]);
-  if (path === "/Read") {
-
-  	console.log("read from db");
+  		console.log("read from db");
   	
-  	
-  	res.writeHead(200, {"Content-Type": "application/json"});
+  		res.writeHead(200, {"Content-Type": "application/json"});
 
-  	console.log(res.context);
+  		console.log(res.context);
 
-  	//The callback res.end lost context... causing an error to http in index.js 
-  	//database.readDB("db", res.end);
+  		//The callback res.end lost context... causing an error to http in index.js 
+  		//database.readDB("db", res.end);
+  		//Not using callback bypass the error, which resulted in code below
+  		fs.readFile("db", "utf8", function(err, data) {
 
-  	//console.log(database.readDB("db"));
+  			var textPairObject = [];
 
-  	
-  	fs.readFile("db", "utf8", function(err, data) {
+				if (err) {
 
-  		var textPairObject = [];
+					console.log(err);
 
-			if (err) {
-
-				console.log(err);
-
-			} else {
-
-				//console.log(data);
+				} else {
 				
-				var dataArray = data.split("\n");
-
-
-				//console.log(dataArray);
+					var dataArray = data.split("\n");
 				
-				for (var i = 0; i < dataArray.length-1; i++) {
+					for (var i = 0; i < dataArray.length-1; i++) {
+
+						var textPair = dataArray[i].split(",");
+						var basicCard = new BasicCard(textPair[0], textPair[1]);
+	  					var clozeCard = new ClozeCard(textPair[0], textPair[1]);
+	  					var cardArray = [basicCard, clozeCard];
+
+						textPairObject.push(cardArray);
+						//console.log("logging textPairObject:", textPairObject);
+
+					}	
+
+					res.end(JSON.stringify(textPairObject));
+
+				}
 
 
+		}) 	
 
+	} else {
 
-					var textPair = dataArray[i].split(",");
+		if (path === "/Card") {
 
-					var basicCard = new BasicCard(textPair[0], textPair[1]);
-  					var clozeCard = new ClozeCard(textPair[0], textPair[1]);
+		  	console.log("request recieved");
 
-  					var cardArray = [basicCard, clozeCard];
+		  	var textArray = url.parse(req.url).query.split("&");
+		  	var fullText = textArray[0].substring(3,textArray[0].length);
+		  	var cloze = textArray[1].substring(3,textArray[1].length);
 
-					//console.log(textPair);
+		  	database.writeDB("db", fullText + "," + cloze + "\n");
 
-					textPairObject.push(cardArray);
+		  	var basicCard = new BasicCard(fullText, cloze);
+		  	var clozeCard = new ClozeCard(fullText, cloze);
+		  	var cardArray = [basicCard, clozeCard];
 
-					console.log("logging textPairObject:", textPairObject);
+		  	res.writeHead(200, {"Content-Type": "application/json"});
+		  	res.end(JSON.stringify(cardArray));
 
-				}	
+		} else {
 
-				res.end(JSON.stringify(textPairObject));
+			fs.readFile('index.html', function (err, data) {
 
-			}
+			    if (err) {
+			    
+			    	console.log(err);
+			    
+			    } else {
+			    
+			    	res.writeHead(200, {'Content-Type': 'text/html'});
+			    	res.write(data);
+			    	res.end();
+			  	
+			  	}
+			
+			});
+		
+		}
+	
+	}
 
-
-		})
-
-
-  	//database.readDB("db");
-
-  	//console.log(database.textPairObject);
-  	//res.write(JSON.stringify(database.readDB("db")));
-  	
-
-  } else {
-
-  if (path === "/Card") {
-
-  	console.log("request recieved");
-
-  	var textArray = url.parse(req.url).query.split("&");
-
-  	//console.log(textArray[0]);
-  	//console.log(textArray[1]);
-
-  	var fullText = textArray[0].substring(3,textArray[0].length);
-  	var cloze = textArray[1].substring(3,textArray[1].length);
-
-  	database.writeDB("db", fullText + "," + cloze + "\n");
-
-  	var basicCard = new BasicCard(fullText, cloze);
-  	var clozeCard = new ClozeCard(fullText, cloze);
-
-  	var cardArray = [basicCard, clozeCard];
-
-  	res.writeHead(200, {"Content-Type": "application/json"});
-
-  	res.end(JSON.stringify(cardArray));
-
-  	 
-
-
-  } else {
-
-  fs.readFile('index.html', function (err, data) {
-        if (err) console.log(err);
-        res.writeHead(200, {'Content-Type': 'text/html'});
-        res.write(data);
-        res.end();
-  	});
-  }
-  }
-
-/*
-   fs.readFile('javascript.js', "utf8", function (err, data) {
-        if (err) console.log(err);
-        res.writeHead(200, {'Content-Type': 'text/javascript'});
-        console.log(data);
-        res.write(data);
-        res.end();
-      });
-
-
-   fs.readFile('style.css', function (err, data) {
-        if (err) console.log(err);
-        res.writeHead(200, {'Content-Type': 'text/css'});
-        res.write(data);
-        res.end();
-      });
-      */
-/*
-  if(req.url.indexOf('.html') != -1){ //req.url has the pathname, check if it conatins '.html'
-
-  	console.log("html");
-
-      fs.readFile('index.html', function (err, data) {
-        if (err) console.log(err);
-        res.writeHead(200, {'Content-Type': 'text/html'});
-        res.write(data);
-        res.end();
-      });
-
-    }
-
-    if(req.url.indexOf('.js') != -1){ //req.url has the pathname, check if it conatins '.js'
-
-      fs.readFile('javascript.js', function (err, data) {
-        if (err) console.log(err);
-        res.writeHead(200, {'Content-Type': 'text/javascript'});
-        res.write(data);
-        res.end();
-      });
-
-    }
-
-    if(req.url.indexOf('.css') != -1){ //req.url has the pathname, check if it conatins '.css'
-
-      fs.readFile('style.css', function (err, data) {
-        if (err) console.log(err);
-        res.writeHead(200, {'Content-Type': 'text/css'});
-        res.write(data);
-        res.end();
-      });
-
-    }
-
-    console.log("readed end without going into if...");
-*/
 }).listen(8080, '127.0.0.1');
 console.log('Server running at http://127.0.0.1:8080/');

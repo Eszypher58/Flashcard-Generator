@@ -75,6 +75,7 @@
 
 	$(document).ready(function() {
 
+		//Perform initial read from db so flashcard stored are displayed
 		$.ajax({
 
 			url: "http://127.0.0.1:8080/Read?",
@@ -89,22 +90,14 @@
 
 		});
 
-		//alert("hello world");
+		//attach callback function to click event  that will push data to db
 		$("#submit").on("click", function(e){
 
 			e.preventDefault();
-			console.log("clicked");
-			//console.log(e);
-
-			//console.log($("#fulltext").val());
-			//console.log($("#cloze").val());
 
 			var fText = $("#fulltext").val();
 			var bText = $("#cloze").val();
 
-			//var bCard = new BasicCard(fText,bText);
-
-			//console.log(bCard.front);
 			var url = "http://127.0.0.1:8080/Card?" + "ft=" + fText + "&" + "bt=" + bText;
 
 			$.ajax({
@@ -120,8 +113,6 @@
 
 		    	createBasicCard(result, row);
 		    	createClozeCard(result, row);
-
-
 
 		    }).fail(function(err) {
 
@@ -142,8 +133,6 @@
 
 		for (var i = 0; i <array.length; i++) {
 
-			console.log(array[i]);
-		    
 		    createBasicCard(array[i], row);
 		    createClozeCard(array[i], row);
 		
@@ -151,11 +140,8 @@
 
 	}
 
-
+	//create basic card using material css markup
 	function createBasicCard(array, row) {
-
-		//var row = $("<div>");
-		//row.attr("class", "row");
 
 		var col = $("<div>");
 		col.attr("class", "col m6");
@@ -171,18 +157,7 @@
 		title.html("Basic Flash Card");
 
 		var pContent = $("<p>");
-		//pContent.attr("class", "content");
-		//pContent.attr("data_front", array[0].front.replace(/%20/g, " "));
-		//pContent.attr("data_back", array[0].front.replace(/%20/g, " "));
 		pContent.html(array[0].front.replace(/%20/g, " "));
-
-		/*
-		var pFront = $("<p>");
-		pFront.html(array[0].front.replace(/%20/g, " "));
-
-		var pBack = $("<p>");
-		pBack.html(array[0].back.replace(/%20/g, " "));
-		*/
 
 		var action = $("<div>");
 		action.attr("class", "card-action");
@@ -197,32 +172,19 @@
 		linkB.attr("data_back", array[0].back.replace(/%20/g, " "))
 		linkB.html("Back");
 
-		//action.html("<a class='f' href='#'>Front</a>" +
-		//            "<a class='b' href='#'>Back</a>");
-
 		action.append(linkF);
 		action.append(linkB);
-
 		content.append(title);
 		content.append(pContent);
-		//content.append(pFront);
-		//content.append(pBack);
 		color.append(content);
 		color.append(action);
 		col.append(color);
 		row.append(col);
-		
-
-
-		//$("#cards").append(row);
-
 
 	}
 
+	//create cloze card based on material css markup
 	function createClozeCard(array, row) {
-
-		//var row = $("<div>");
-		//row.attr("class", "row");
 
 		var col = $("<div>");
 		col.attr("class", "col m6");
@@ -232,18 +194,10 @@
 
 		var content = $("<div>");
 		content.attr("class", "card-content white-text center-align");
+
 		var title = $("<span>");
 		title.attr("class", "card-title");
 		title.html("Cloze Flash Card");
-
-		//var pFullText = $("<p>");
-		//pFullText.html(array[1].fullText.replace(/%20/g, " "));
-
-		//var pCloze = $("<p>");
-		//pCloze.html(array[1].cloze.replace(/%20/g, " "));
-
-		//var pPartial = $("<p>");
-		//pPartial.html(array[1].partial.replace(/%20/g, " "));
 
 		var pContent = $("<p>");
 		pContent.html(array[1].partial.replace(/%20/g, " "));
@@ -266,77 +220,49 @@
 		linkAns.attr("data_answer", array[1].cloze.replace(/%20/g, " "))
 		linkAns.html("Answer");
 
-		//action.html("<a class='f' href='#'>Front</a>" +
-		//            "<a class='b' href='#'>Back</a>");
-
 		action.append(linkFull);
 		action.append(linkTest);
 		action.append(linkAns);
-
-
-
-		//action.html("<a href='#'>Full</a>" +
-		 //           "<a href='#'>Test</a>" +
-		   //         "<a href='#'>Answer</a>");
-
 		content.append(title);
 		content.append(pContent);
-		//content.append(pFullText);
-		//content.append(pCloze);
-		//content.append(pPartial);
 		color.append(content);
 		color.append(action);
 		col.append(color);
-
 		row.append(col);
-
-		//console.log(row);
-
-		//$("#cards").append(col);
 
 	}
 
+	//when clicking on front of card, show the front side of the card
 	$(document).on("click", ".f", function(e){
 
-		//console.log($(this).attr("data_front"));
-		//console.log($(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML);
-		//console.log($(this).parentNode);
 		$(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML = $(this).attr("data_front");
 
 	})
 
+	//when clicking on back of card, show the back side of the card
 	$(document).on("click", ".b", function(e){
 
-		//console.log($(this).attr("data_back"));
-		//console.log($(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML);
-		//console.log($(this).parentNode);
 		$(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML = $(this).attr("data_back");
 
 	})
 
+	//when clicking on the full link of clozecard, show the entire content
 	$(document).on("click", ".full", function(e){
 
-		//console.log($(this).attr("data_back"));
-		//console.log($(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML);
-		//console.log($(this).parentNode);
 		$(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML = $(this).attr("data_full");
 
 	})
 
+	//when clicking on the test link, show the partial content
 	$(document).on("click", ".test", function(e){
 
-		//console.log($(this).attr("data_back"));
-		//console.log($(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML);
-		//console.log($(this).parentNode);
 		$(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML = $(this).attr("data_test");
 
 	})
 
+	//when clicking on the answer link, show only the answer
 	$(document).on("click", ".answer", function(e){
 
-		//console.log($(this).attr("data_back"));
-		//console.log($(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML);
-		//console.log($(this).parentNode);
 		$(this).parent().parent()[0].childNodes[0].childNodes[1].innerHTML = $(this).attr("data_answer");
 
 	})
